@@ -1,15 +1,29 @@
 import localFont from "next/font/local";
 import "./globals.css";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
+// Import Anuphan (Variable Font)
+const anuphan = localFont({
+  src: "./fonts/Anuphan-VariableFont_wght.ttf",
+  variable: "--font-anuphan",
   weight: "100 900",
 });
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
+
+// Import Supreme fonts with different weights
+const supremeBold = localFont({
+  src: "./fonts/Supreme-Bold.otf",
+  variable: "--font-supreme-bold",
+});
+const supremeExtrabold = localFont({
+  src: "./fonts/Supreme-Extrabold.otf",
+  variable: "--font-supreme-extrabold",
+});
+const supremeMedium = localFont({
+  src: "./fonts/Supreme-Medium.otf",
+  variable: "--font-supreme-medium",
+});
+const supremeRegular = localFont({
+  src: "./fonts/Supreme-Regular.otf",
+  variable: "--font-supreme-regular",
 });
 
 export const metadata = {
@@ -21,7 +35,7 @@ export default function RootLayout({ children }) {
   return (
     <html lang="en">
       <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
+        className={`${anuphan.variable} ${supremeBold.variable} ${supremeExtrabold.variable} ${supremeMedium.variable} ${supremeRegular.variable} antialiased`}
       >
         {children}
       </body>

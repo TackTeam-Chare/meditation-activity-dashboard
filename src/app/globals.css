@@ -19,3 +19,28 @@ body {
   background: var(--background);
   font-family: Arial, Helvetica, sans-serif;
 }
+
+@font-face {
+  font-family: "Supreme-Bold";
+  src: url("/src/app/fonts/Supreme-Bold.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Supreme-Extrabold";
+  src: url("/src/app/fonts/Supreme-Extrabold.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Supreme-Medium";
+  src: url("/src/app/fonts/Supreme-Medium.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Supreme-Regular";
+  src: url("/src/app/fonts/Supreme-Regular.otf") format("opentype");
+}
+
+@font-face {
+  font-family: "Anuphan-VariableFont";
+  src: url("/src/app/fonts/Anuphan-VariableFont_wght.ttf") format("truetype");
+}
