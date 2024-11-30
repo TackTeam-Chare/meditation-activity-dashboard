@@ -2,45 +2,11 @@
 @tailwind components;
 @tailwind utilities;
 
-:root {
-  --background: #ffffff;
-  --foreground: #171717;
-}
-
-@media (prefers-color-scheme: dark) {
-  :root {
-    --background: #0a0a0a;
-    --foreground: #ededed;
-  }
-}
-
+html,
 body {
-  color: var(--foreground);
-  background: var(--background);
-  font-family: Arial, Helvetica, sans-serif;
+  padding: 0;
+  margin: 0;
+  font-family: Anuphan;
 }
 
-@font-face {
-  font-family: "Supreme-Bold";
-  src: url("/src/app/fonts/Supreme-Bold.otf") format("opentype");
-}
 
-@font-face {
-  font-family: "Supreme-Extrabold";
-  src: url("/src/app/fonts/Supreme-Extrabold.otf") format("opentype");
-}
-
-@font-face {
-  font-family: "Supreme-Medium";
-  src: url("/src/app/fonts/Supreme-Medium.otf") format("opentype");
-}
-
-@font-face {
-  font-family: "Supreme-Regular";
-  src: url("/src/app/fonts/Supreme-Regular.otf") format("opentype");
-}
-
-@font-face {
-  font-family: "Anuphan-VariableFont";
-  src: url("/src/app/fonts/Anuphan-VariableFont_wght.ttf") format("truetype");
-}

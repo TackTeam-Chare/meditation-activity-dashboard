@@ -1,162 +1,181 @@
-"use client"; 
-import React, { useState } from 'react';
-import { FaTasks, FaPlay, FaPause, FaVolumeUp, FaVolumeMute, FaShareAlt, FaForward, FaBackward } from 'react-icons/fa';
-import { BsFillSunFill, BsFillMoonFill, BsDropletHalf,BsSoundwave } from 'react-icons/bs';
+"use client";
+
+import React, { useState } from "react";
+import {
+  FaEllipsisV,
+  FaPlayCircle,
+  FaPauseCircle,
+  FaClock,
+  FaShareAlt,
+  FaBroadcastTower,
+} from "react-icons/fa";
+import { GiLotus } from "react-icons/gi";
+import { MdSelfImprovement } from "react-icons/md";
+import { BsFillSunFill, BsMoonStarsFill, BsPlay } from "react-icons/bs";
 
 export default function MeditationDashboard() {
-  const [activityHistory, setActivityHistory] = useState([
-    { id: 1, description: "สะสมบุญใกล้บ้าน", points: 50, image: "https://static.thairath.co.th/media/dFQROr7oWzulq5FZYjXiaKmVO3vcxON9xLf2HYojmsfQAfq5rjDmmiJhYZiOmWuToDF.jpg" },
-    { id: 2, description: "ฟังธรรมประจำวัน", points: 30, image: "https://images.unsplash.com/photo-1530847887473-36dbaf586122?ixlib=rb-1.2.1&q=80&fm=jpg&crop=entropy&cs=tinysrgb&w=1080&fit=max&ixid=eyJhcHBfaWQiOjExNzczfQ" },
-    { id: 3, description: "งานวัดที่ใกล้มาถึง", points: 70, image: "https://cdn.chiangmainews.co.th/wp-content/uploads/2019/01/06133012/2109052.jpg" },
-  ]);
-  const [isNightMode, setIsNightMode] = useState(false);
-  const [selectedTrack, setSelectedTrack] = useState(null);
-  const [isPlaying, setIsPlaying] = useState(false);
-  const [volume, setVolume] = useState(0.5);
-  const [progress, setProgress] = useState(0);
-  const [isMuted, setIsMuted] = useState(false); // Manage mute
+  const [isNightMode, setNightMode] = useState(false);
+  const [isPlaying, setPlaying] = useState(false);
+  const [currentAudio, setCurrentAudio] = useState(null);
 
-  const toggleNightMode = () => setIsNightMode(!isNightMode);
-  const togglePlay = () => setIsPlaying(!isPlaying);
-  
-  const handleTrackClick = (track) => setSelectedTrack(track);
-  const closeModal = () => {
-    setSelectedTrack(null);
-    setIsPlaying(false);
+  const toggleNightMode = () => setNightMode(!isNightMode);
+
+  const audioTracks = [
+    {
+      id: 1,
+      title: "การฝึกสมาธิ: ผ่อนคลายลมหายใจ",
+      speaker: "พระอาจารย์สมชาย",
+      duration: "15 นาที",
+      url: "https://example.com/audio1.mp3",
+    },
+    {
+      id: 2,
+      title: "ฟังธรรมจากพระอาจารย์: การปล่อยวาง",
+      speaker: "พระอาจารย์ธงชัย",
+      duration: "20 นาที",
+      url: "https://example.com/audio2.mp3",
+    },
+    {
+      id: 3,
+      title: "การฝึกสมาธิ: แสงแห่งสติ",
+      speaker: "พระอาจารย์ชัยวัฒน์",
+      duration: "30 นาที",
+      url: "https://example.com/audio3.mp3",
+    },
+  ];
+
+  const togglePlayPause = (track) => {
+    if (currentAudio && currentAudio.id === track.id && isPlaying) {
+      setPlaying(false);
+    } else {
+      setCurrentAudio(track);
+      setPlaying(true);
+    }
   };
 
-  const toggleMute = () => {
-    setIsMuted(!isMuted);
-    setVolume(isMuted ? 0.5 : 0); // Mute or restore volume
+  const handleShare = (track) => {
+    const shareText = `ร่วมฝึกสมาธิกับ "${track.title}" โดย ${track.speaker} ได้ที่: ${track.url}`;
+    if (navigator.share) {
+      navigator.share({
+        title: track.title,
+        text: shareText,
+        url: track.url,
+      });
+    } else {
+      alert("การแบ่งปันยังไม่รองรับบนเบราว์เซอร์นี้");
+    }
   };
 
   return (
     <div
-      className={`min-h-screen font-['Anuphan'] flex flex-col items-center ${isNightMode ? 'bg-[#0D2745] text-white' : 'bg-white text-gray-800'}`}
-      style={{
-        backgroundImage: isNightMode ? 'none' : 'url("https://example.com/calm-background.jpg")',
-        backgroundSize: 'cover',
-        backgroundPosition: 'center',
-        filter: isNightMode ? 'brightness(0.7)' : 'none',
-      }}
+      className={`min-h-screen flex flex-col ${
+        isNightMode
+          ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white"
+          : "bg-gradient-to-br from-blue-500 via-blue-600 to-blue-700 text-white"
+      }`}
     >
-      <style jsx global>{`
-        html {
-          scroll-behavior: smooth;
-        }
-      `}</style>
-
-      <header className="w-full p-3 bg-[#1478D2] text-white flex justify-between items-center">
-        <img src="/logo/temulet-logo.png" alt="Temulet Logo" width={60} height={60} className="rounded-full" />
-        <h1 className="text-xl">ฝึกสมาธิ</h1>
-        <button aria-label="เมนูเพิ่มเติม" className="text-xl">⋮</button>
+      {/* Header */}
+      <header className="sticky top-0 z-50 flex items-center justify-between px-6 py-4 bg-gradient-to-r from-blue-700 via-blue-600 to-blue-500 shadow-md">
+        <div className="flex items-center gap-4">
+          <h1 className="text-2xl font-extrabold tracking-wide">เเดชบอร์ดฝึกสมาธิ</h1>
+        </div>
+        <div className="flex gap-4">
+          <button
+            className="p-2 rounded-full shadow-lg transition-transform transform hover:scale-110"
+            onClick={toggleNightMode}
+          >
+            {isNightMode ? (
+              <BsFillSunFill className="text-yellow-400 text-2xl" />
+            ) : (
+              <BsMoonStarsFill className="text-indigo-400 text-2xl" />
+            )}
+          </button>
+          <button className="p-2 rounded-full shadow-lg transition-transform transform hover:scale-110">
+            <FaEllipsisV className="text-xl" />
+          </button>
+        </div>
       </header>
 
-      <section className="text-center my-3">
-        <h2 className="text-md font-semibold mb-2">คำแนะนำในการฝึกสมาธิ</h2>
-        <p className="text-xs text-gray-600">ผ่อนคลาย หายใจเข้าลึกๆ และฟังเสียงบรรยายอย่างตั้งใจ</p>
-      </section>
-
-      <section id="activities" className="w-full mt-3 mb-3">
-        <h2 className="text-md font-bold text-gray-700 mb-2 flex items-center gap-2">
-        <BsSoundwave className="text-blue-500" />รายการเสียงบรรยาย
-        </h2>
-        <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-3 gap-3">
-          {activityHistory.map((activity) => (
-            <div
-              key={activity.id}
-              onClick={() => handleTrackClick(activity)}
-              className="bg-white shadow-md rounded-lg overflow-hidden cursor-pointer transform transition-transform hover:scale-105"
-            >
-              <img src={activity.image} alt={activity.description} className="w-full h-28 object-cover rounded-t-lg" />
-              <div className="p-3 flex flex-col items-center">
-                <BsDropletHalf className="text-blue-400 text-2xl mb-1" />
-                <p className="text-center text-sm font-medium">{activity.description}</p>
-                <button className="mt-1 bg-[#1478D2] text-white px-3 py-1 rounded-full flex items-center gap-1 text-sm">
-                  <FaPlay /> เล่นเสียง
-                </button>
-              </div>
-            </div>
-          ))}
-        </div>
-      </section>
-
-      {selectedTrack && (
-        <div className="fixed inset-0 bg-black bg-opacity-50 flex justify-center items-center z-50">
-          <div className="bg-white w-full max-w-md p-4 rounded-lg relative">
-            <button onClick={closeModal} className="absolute top-0 right-1 text-gray-700 text-xl" aria-label="Close">✕</button>
-            <img src={selectedTrack.image} alt={selectedTrack.description} className="w-full h-36 object-cover rounded-lg mb-2" />
-            <h2 className="text-lg font-semibold mb-1">{selectedTrack.description}</h2>
-            <p className="text-xs text-gray-500 mb-2">ระยะเวลา: {selectedTrack.points} นาที</p>
-
-            {/* Audio Player Controls */}
-            <div className="flex items-center justify-between mb-2">
-              <button onClick={() => alert("Rewind")} className="text-xl text-gray-500" aria-label="Rewind">
-                <FaBackward />
-              </button>
-              <button onClick={togglePlay} className="bg-[#1478D2] text-white p-2 rounded-full text-lg" aria-label="Play/Pause">
-                {isPlaying ? <FaPause /> : <FaPlay />}
-              </button>
-              <button onClick={() => alert("Forward")} className="text-xl text-gray-500" aria-label="Forward">
-                <FaForward />
-              </button>
-            </div>
-
-            {/* Seek Bar */}
-            <div className="flex items-center gap-2 mb-2">
-              <span className="text-xs text-gray-700">0:00</span>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={progress}
-                onChange={(e) => setProgress(e.target.value)}
-                className="flex-grow"
-              />
-              <span className="text-xs text-gray-700">10:00</span>
-            </div>
-
-            {/* Volume Control */}
-            <div className="flex items-center mb-2">
-              <button onClick={toggleMute} className="text-xl text-gray-700" aria-label="Volume">
-                {isMuted ? <FaVolumeMute /> : <FaVolumeUp />}
-              </button>
-              <input
-                type="range"
-                min="0"
-                max="1"
-                step="0.01"
-                value={isMuted ? 0 : volume}
-                onChange={(e) => {
-                  setVolume(e.target.value);
-                  if (e.target.value > 0) {
-                    setIsMuted(false);
-                  }
-                }}
-                className="ml-2 w-20"
-              />
-            </div>
-
-            {/* Share Button */}
-            <button
-              onClick={() => alert("แชร์ประสบการณ์การฝึกสมาธิ")}
-              className="flex items-center gap-2 px-4 py-1 bg-[#FF965A] text-white rounded-md mt-2"
-            >
-              <FaShareAlt /> แชร์ประสบการณ์
-            </button>
-          </div>
-        </div>
-      )}
-
-      {/* Quick Access Buttons with Night Mode Toggle */}
-      <section className="mt-3 flex gap-2 justify-center">
-        <button className="px-3 py-1 bg-[#1478D2] text-white rounded-lg shadow-md text-sm">เริ่มฝึกสมาธิ</button>
-        <button className="px-3 py-1 bg-[#FF965A] text-white rounded-lg shadow-md text-sm">ฟังถ่ายทอดสด</button>
-        <button onClick={toggleNightMode} className="px-3 py-1 bg-gray-700 text-white rounded-lg shadow-md flex items-center gap-1 text-sm">
-          {isNightMode ? <BsFillSunFill /> : <BsFillMoonFill />} โหมดกลางคืน
+      {/* Quick Access Buttons */}
+      <div className="flex justify-around mt-4 px-4">
+        <button className="flex items-center gap-2 text-blue-600 bg-white py-2 px-6 rounded-full shadow-md hover:bg-blue-100 transition">
+          <BsPlay className="text-lg" />
+          <span>เริ่มฝึกสมาธิ</span>
         </button>
-      </section>
+        <button className="flex items-center gap-2 text-blue-600 bg-white py-2 px-6 rounded-full shadow-md hover:bg-blue-100 transition">
+          <FaBroadcastTower className="text-lg" />
+          <span>ฟังถ่ายทอดสด</span>
+        </button>
+      </div>
+
+      {/* Main Content */}
+      <main className="flex-grow px-6 py-8">
+        {/* Meditation Guidance */}
+        <section className="bg-gradient-to-br from-blue-600 via-blue-500 to-blue-400 rounded-xl shadow-md p-6 mb-8">
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <MdSelfImprovement className="text-3xl" /> คำแนะนำการฝึกสมาธิ
+          </h2>
+          <p className="mt-4 text-white/90">
+            ผ่อนคลายหายใจเข้าลึกๆ และฟังเสียงบรรยายเพื่อเข้าสู่สมาธิ
+          </p>
+        </section>
+
+        {/* Audio Tracks */}
+        <section>
+          <h2 className="text-xl font-bold flex items-center gap-2">
+            <GiLotus className="text-3xl" /> รายการเสียงบรรยาย
+          </h2>
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+            {audioTracks.map((track) => (
+              <div
+                key={track.id}
+                className="bg-gradient-to-r from-blue-300 via-blue-500 to-blue-700 rounded-lg shadow-lg p-4 flex flex-col justify-between"
+              >
+                <div className="flex justify-between items-center">
+                  <h3 className="text-lg font-semibold">{track.title}</h3>
+                  <div className="flex items-center gap-1 text-sm text-gray-200">
+                    <FaClock />
+                    <span>{track.duration}</span>
+                  </div>
+                </div>
+                <p className="text-sm text-gray-200 italic mt-2">
+                  โดย {track.speaker}
+                </p>
+                <div className="mt-4 flex justify-between items-center">
+                  <button
+                    className="bg-white text-blue-600 py-2 px-4 rounded-full shadow-md hover:bg-blue-100 transition"
+                    onClick={() => togglePlayPause(track)}
+                  >
+                    {currentAudio && currentAudio.id === track.id && isPlaying ? (
+                      <FaPauseCircle className="inline-block text-xl mr-2" />
+                    ) : (
+                      <FaPlayCircle className="inline-block text-xl mr-2" />
+                    )}
+                    {currentAudio && currentAudio.id === track.id && isPlaying
+                      ? "หยุด"
+                      : "เล่น"}
+                  </button>
+                  <button
+                    className="bg-white text-blue-600 py-2 px-4 rounded-full shadow-md hover:bg-blue-100 transition"
+                    onClick={() => handleShare(track)}
+                  >
+                    <FaShareAlt className="inline-block text-xl mr-2" /> แบ่งปัน
+                  </button>
+                </div>
+              </div>
+            ))}
+          </div>
+        </section>
+      </main>
+
+      {/* Playback Controls */}
+      {currentAudio && (
+        <footer className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-blue-800 via-blue-700 to-blue-600 shadow-lg py-4 px-6 flex items-center justify-between">
+          <div className="flex items-center gap-4">
+            <h3 className="text-lg font-semibold">{currentAudio.title}</h3>
+          </div>
+        </footer>
+      )}
     </div>
   );
 }
