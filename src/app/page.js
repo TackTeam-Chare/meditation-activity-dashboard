@@ -8,6 +8,7 @@ import {
   FaShareAlt,
   FaBroadcastTower,
   FaHeartbeat,
+  FaEllipsisV 
 } from "react-icons/fa";
 import { GiLotus } from "react-icons/gi";
 import { MdSelfImprovement } from "react-icons/md";
@@ -22,8 +23,9 @@ export default function MeditationDashboard() {
   const [isLivePlaying, setLivePlaying] = useState(false);
   const [isMeditating, setIsMeditating] = useState(false);
   const [elapsedTime, setElapsedTime] = useState(0);
-
-
+  const [currentTime, setCurrentTime] = useState(0);
+  const [duration, setDuration] = useState(0);
+  const audioRef = useRef(null);
   const liveAudioRef = useRef(null);
   // Timer functionality for meditation
   useEffect(() => {
@@ -43,12 +45,6 @@ export default function MeditationDashboard() {
       setElapsedTime(0);
       setIsMeditating(true);
     }
-  };
-  
-  const formatTime = (time) => {
-    const minutes = Math.floor(time / 60).toString().padStart(2, "0");
-    const seconds = (time % 60).toString().padStart(2, "0");
-    return `${minutes}:${seconds}`;
   };
 
   const toggleNightMode = () => setNightMode(!isNightMode);
@@ -75,29 +71,80 @@ export default function MeditationDashboard() {
     }
   };
 
+  const formatTime = (time) => {
+    const minutes = Math.floor(time / 60).toString().padStart(2, "0");
+    const seconds = Math.floor(time % 60).toString().padStart(2, "0");
+    return `${minutes}:${seconds}`;
+  };
+
   const audioTracks = [
     {
       id: 1,
-      title: "การฝึกสมาธิ: ผ่อนคลายลมหายใจ",
-      speaker: "พระอาจารย์สมชาย",
+      title: "การฝึกสมาธิ: เสียงธรรมชาติในป่า",
+      speaker: "ธรรมชาติ",
       duration: "15 นาที",
-      url: "https://example.com/audio1.mp3",
+      url: "/sounds/birds39-forest-20772.mp3", // Path to your local file
     },
     {
       id: 2,
-      title: "ฟังธรรมจากพระอาจารย์: การปล่อยวาง",
-      speaker: "พระอาจารย์ธงชัย",
+      title: "การฝึกสมาธิ: เสียงธรรมชาติเบาสบาย",
+      speaker: "ธรรมชาติ",
       duration: "20 นาที",
-      url: "https://example.com/audio2.mp3",
+      url: "/sounds/gentle-nature-ambience-248950.mp3",
     },
     {
       id: 3,
-      title: "การฝึกสมาธิ: แสงแห่งสติ",
-      speaker: "พระอาจารย์ชัยวัฒน์",
+      title: "การฝึกสมาธิ: สมาธิสีฟ้า",
+      speaker: "ธรรมชาติ",
       duration: "30 นาที",
-      url: "https://example.com/audio3.mp3",
+      url: "/sounds/meditation-blue-138131.mp3",
     },
   ];
+
+  const togglePlayPause = (track) => {
+    if (currentAudio && currentAudio.id === track.id && isPlaying) {
+      // Pause the current track
+      audioRef.current.pause();
+      setPlaying(false);
+    } else {
+      // Play a new track
+      if (audioRef.current) {
+        audioRef.current.pause(); // Stop any currently playing audio
+        audioRef.current.currentTime = 0; // Reset the previous audio
+      }
+      setCurrentAudio(track); // Set the new audio track
+      setPlaying(true);
+    }
+  };
+
+  useEffect(() => {
+    if (currentAudio && isPlaying) {
+      audioRef.current.src = currentAudio.url; // Update the audio source
+      audioRef.current.play(); // Play the audio
+
+      const handleLoadedMetadata = () => {
+        setDuration(audioRef.current.duration); // Set the duration of the audio
+      };
+
+      const handleTimeUpdate = () => {
+        setCurrentTime(audioRef.current.currentTime); // Update the current playback time
+      };
+
+      audioRef.current.addEventListener("loadedmetadata", handleLoadedMetadata);
+      audioRef.current.addEventListener("timeupdate", handleTimeUpdate);
+
+      return () => {
+        audioRef.current.removeEventListener(
+          "loadedmetadata",
+          handleLoadedMetadata
+        );
+        audioRef.current.removeEventListener("timeupdate", handleTimeUpdate);
+      };
+    }
+  }, [currentAudio, isPlaying]);
+
+ 
+
 
   // Toggle live audio streaming
   const toggleLiveBroadcast = () => {
@@ -146,6 +193,9 @@ export default function MeditationDashboard() {
             ) : (
               <BsMoonStarsFill className="text-indigo-400 text-xl" />
             )}
+          </button>
+    <button className="p-2 rounded-full shadow-lg transition-transform transform hover:scale-110">
+            <FaEllipsisV className="text-xl" />
           </button>
         </div>
       </header>
@@ -253,7 +303,7 @@ export default function MeditationDashboard() {
                   </button>
                   <button
                     className="bg-white text-[#1478D2] py-2 px-4 rounded-full shadow-md hover:bg-blue-100 transition"
-                    onClick={() => handleShare(track)}
+                    onClick={() => alert("แบ่งปันยังไม่พร้อมใช้งาน")}
                   >
                     <FaShareAlt className="inline-block text-xl mr-2" /> แบ่งปัน
                   </button>
@@ -268,9 +318,15 @@ export default function MeditationDashboard() {
       {currentAudio && (
         <footer className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-[#0D2745] via-[#1478D2] to-[#0D2745] text-white shadow-lg py-4 px-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
+            <div className="text-xl">
+              {isPlaying ? <FaPauseCircle /> : <FaPlayCircle />}
+            </div>
             <h3 className="text-sm md:text-base font-semibold">
               {currentAudio.title}
             </h3>
+            <span className="text-sm text-gray-300">
+              {formatTime(currentTime)} / {formatTime(duration)}
+            </span>
           </div>
         </footer>
       )}
@@ -279,6 +335,7 @@ export default function MeditationDashboard() {
         ref={liveAudioRef}
         src="https://cdn-th2.login.in.th/shoutcast/8615"
       ></audio>
+        <audio ref={audioRef} />
     </div>
   );
 }
