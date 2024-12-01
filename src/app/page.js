@@ -91,13 +91,13 @@ export default function MeditationDashboard() {
       className={`min-h-screen flex flex-col ${
         isNightMode
           ? "bg-gradient-to-br from-gray-900 via-gray-800 to-gray-700 text-white"
-          : "bg-gradient-to-br from-white via-[#1478D2] to-[#0D2745] text-[#0D2745]"
+          : "bg-gradient-to-br from-white via-[#1478D2]  text-[#0D2745]"
       }`}
     >
       {/* Header */}
       <header className="sticky top-0 z-50 flex items-center justify-between px-4 py-3 bg-gradient-to-r from-[#1478D2] via-[#0D2745] to-[#1478D2] shadow-md">
         <h1 className="text-lg md:text-xl font-extrabold tracking-wide text-white">
-          ฝึกสมาธิ
+          เเดชบอร์ดฝึกสมาธิ
         </h1>
         <div className="flex gap-2">
           <button
@@ -141,65 +141,66 @@ export default function MeditationDashboard() {
         </button>
       </div>
 
-      {/* Main Content */}
-      <main className="flex-grow px-4 py-8">
-        <section className="bg-gradient-to-br from-[#1478D2] via-[#0D2745] to-[#0D2745] rounded-xl shadow-md p-6 mb-8 text-white">
-          <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">
-            <MdSelfImprovement className="text-2xl md:text-3xl" /> คำแนะนำการฝึกสมาธิ
-          </h2>
-          <p className="mt-4 text-sm md:text-base">
-            ผ่อนคลายหายใจเข้าลึกๆ และฟังเสียงบรรยายเพื่อเข้าสู่สมาธิ
-          </p>
-        </section>
+{/* Main Content */}
+<main className="flex-grow px-4 py-8 pb-24">
+  <section className="bg-gradient-to-br from-[#1478D2] via-[#0D2745] to-[#0D2745] rounded-xl shadow-md p-6 mb-8 text-white">
+    <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">
+      <MdSelfImprovement className="text-2xl md:text-3xl" /> คำแนะนำการฝึกสมาธิ
+    </h2>
+    <p className="mt-4 text-sm md:text-base">
+      ผ่อนคลายหายใจเข้าลึกๆ และฟังเสียงบรรยายเพื่อเข้าสู่สมาธิ
+    </p>
+  </section>
 
-        <section>
-          <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">
-            <GiLotus className="text-2xl md:text-3xl" /> รายการเสียงบรรยาย
-          </h2>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
-            {audioTracks.map((track) => (
-              <div
-                key={track.id}
-                className="bg-gradient-to-r from-white via-[#1478D2] to-[#0D2745] rounded-lg shadow-lg p-4 flex flex-col justify-between text-white"
-              >
-                <div className="flex justify-between items-center">
-                  <h3 className="text-base md:text-lg font-semibold">
-                    {track.title}
-                  </h3>
-                  <div className="flex items-center gap-1 text-sm">
-                    <FaClock />
-                    <span>{track.duration}</span>
-                  </div>
-                </div>
-                <p className="text-xs md:text-sm italic mt-2">
-                  โดย {track.speaker}
-                </p>
-                <div className="mt-4 flex justify-between items-center">
-                  <button
-                    className="bg-white text-[#1478D2] py-2 px-4 rounded-full shadow-md hover:bg-blue-100 transition"
-                    onClick={() => togglePlayPause(track)}
-                  >
-                    {currentAudio && currentAudio.id === track.id && isPlaying ? (
-                      <FaPauseCircle className="inline-block text-xl mr-2" />
-                    ) : (
-                      <FaPlayCircle className="inline-block text-xl mr-2" />
-                    )}
-                    {currentAudio && currentAudio.id === track.id && isPlaying
-                      ? "หยุด"
-                      : "เล่น"}
-                  </button>
-                  <button
-                    className="bg-white text-[#1478D2] py-2 px-4 rounded-full shadow-md hover:bg-blue-100 transition"
-                    onClick={() => handleShare(track)}
-                  >
-                    <FaShareAlt className="inline-block text-xl mr-2" /> แบ่งปัน
-                  </button>
-                </div>
-              </div>
-            ))}
+  <section>
+    <h2 className="text-lg md:text-xl font-bold flex items-center gap-2">
+      <GiLotus className="text-2xl md:text-3xl" /> รายการเสียงบรรยาย
+    </h2>
+    <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 gap-6 mt-4">
+      {audioTracks.map((track) => (
+        <div
+          key={track.id}
+          className="bg-gradient-to-r from-white via-[#1478D2] to-[#0D2745] rounded-lg shadow-lg p-4 flex flex-col justify-between text-white"
+        >
+          <div className="flex justify-between items-center">
+            <h3 className="text-base md:text-lg font-semibold">
+              {track.title}
+            </h3>
+            <div className="flex items-center gap-1 text-sm">
+              <FaClock />
+              <span>{track.duration}</span>
+            </div>
           </div>
-        </section>
-      </main>
+          <p className="text-xs md:text-sm italic mt-2">
+            โดย {track.speaker}
+          </p>
+          <div className="mt-4 flex justify-between items-center">
+            <button
+              className="bg-white text-[#1478D2] py-2 px-4 rounded-full shadow-md hover:bg-blue-100 transition"
+              onClick={() => togglePlayPause(track)}
+            >
+              {currentAudio && currentAudio.id === track.id && isPlaying ? (
+                <FaPauseCircle className="inline-block text-xl mr-2" />
+              ) : (
+                <FaPlayCircle className="inline-block text-xl mr-2" />
+              )}
+              {currentAudio && currentAudio.id === track.id && isPlaying
+                ? "หยุด"
+                : "เล่น"}
+            </button>
+            <button
+              className="bg-white text-[#1478D2] py-2 px-4 rounded-full shadow-md hover:bg-blue-100 transition"
+              onClick={() => handleShare(track)}
+            >
+              <FaShareAlt className="inline-block text-xl mr-2" /> แบ่งปัน
+            </button>
+          </div>
+        </div>
+      ))}
+    </div>
+  </section>
+</main>
+
 
       {/* Playback Controls */}
       {currentAudio && (
