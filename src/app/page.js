@@ -25,6 +25,29 @@ export default function MeditationDashboard() {
   const [elapsedTime, setElapsedTime] = useState(0);
   const [currentTime, setCurrentTime] = useState(0);
   const [duration, setDuration] = useState(0);
+  const [audioTracks, setAudioTracks] = useState([
+    {
+      id: 1,
+      title: "การฝึกสมาธิ: เสียงธรรมชาติในป่า",
+      speaker: "ธรรมชาติ",
+      duration: "กำลังโหลด...", // Placeholder
+      url: "/sounds/birds39-forest-20772.mp3",
+    },
+    {
+      id: 2,
+      title: "การฝึกสมาธิ: เสียงธรรมชาติเบาสบาย",
+      speaker: "ธรรมชาติ",
+      duration: "กำลังโหลด...", // Placeholder
+      url: "/sounds/gentle-nature-ambience-248950.mp3",
+    },
+    {
+      id: 3,
+      title: "การฝึกสมาธิ: สมาธิสีฟ้า",
+      speaker: "ธรรมชาติ",
+      duration: "กำลังโหลด...", // Placeholder
+      url: "/sounds/meditation-blue-138131.mp3",
+    },
+  ]);
   const audioRef = useRef(null);
   const liveAudioRef = useRef(null);
   // Timer functionality for meditation
@@ -48,7 +71,27 @@ export default function MeditationDashboard() {
   };
 
   const toggleNightMode = () => setNightMode(!isNightMode);
-
+    // Load audio durations dynamically
+    useEffect(() => {
+      const updateDurations = async () => {
+        const updatedTracks = await Promise.all(
+          audioTracks.map(async (track) => {
+            return new Promise((resolve) => {
+              const audio = new Audio(track.url);
+              audio.addEventListener("loadedmetadata", () => {
+                resolve({
+                  ...track,
+                  duration: formatTime(audio.duration),
+                });
+              });
+            });
+          })
+        );
+        setAudioTracks(updatedTracks);
+      };
+  
+      updateDurations();
+    }, []);
   // Simulated heart rate monitoring
   useEffect(() => {
     let interval;
@@ -77,29 +120,7 @@ export default function MeditationDashboard() {
     return `${minutes}:${seconds}`;
   };
 
-  const audioTracks = [
-    {
-      id: 1,
-      title: "การฝึกสมาธิ: เสียงธรรมชาติในป่า",
-      speaker: "ธรรมชาติ",
-      duration: "15 นาที",
-      url: "/sounds/birds39-forest-20772.mp3", // Path to your local file
-    },
-    {
-      id: 2,
-      title: "การฝึกสมาธิ: เสียงธรรมชาติเบาสบาย",
-      speaker: "ธรรมชาติ",
-      duration: "20 นาที",
-      url: "/sounds/gentle-nature-ambience-248950.mp3",
-    },
-    {
-      id: 3,
-      title: "การฝึกสมาธิ: สมาธิสีฟ้า",
-      speaker: "ธรรมชาติ",
-      duration: "30 นาที",
-      url: "/sounds/meditation-blue-138131.mp3",
-    },
-  ];
+
 
   const togglePlayPause = (track) => {
     if (currentAudio && currentAudio.id === track.id && isPlaying) {
