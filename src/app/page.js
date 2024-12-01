@@ -158,17 +158,28 @@ export default function MeditationDashboard() {
 
 
   const handleShare = (track) => {
-    const shareText = `ร่วมฝึกสมาธิกับ "${track.title}" โดย ${track.speaker} ได้ที่: ${track.url}`;
+    const shareText = `ร่วมฝึกสมาธิกับ "${track.title}" โดย ${track.speaker} ได้ที่: ${window.location.origin}${track.url}`;
+    
     if (navigator.share) {
       navigator.share({
         title: track.title,
         text: shareText,
-        url: track.url,
+        url: `${window.location.origin}${track.url}`,
+      }).catch((error) => {
+        console.error("Sharing failed:", error);
       });
     } else {
-      alert("การแบ่งปันยังไม่รองรับบนเบราว์เซอร์นี้");
+      // Fallback for unsupported browsers
+      const fallbackMessage = `แชร์ลิงก์นี้: ${window.location.origin}${track.url}`;
+      navigator.clipboard.writeText(fallbackMessage).then(() => {
+        alert("ลิงก์ถูกคัดลอกไปยังคลิปบอร์ดแล้ว!");
+      }).catch((error) => {
+        console.error("Failed to copy text:", error);
+        alert("ไม่สามารถแชร์หรือคัดลอกลิงก์ได้");
+      });
     }
   };
+  
 
   return (
     <div
@@ -302,11 +313,12 @@ export default function MeditationDashboard() {
                       : "เล่น"}
                   </button>
                   <button
-                    className="bg-white text-[#1478D2] py-2 px-4 rounded-full shadow-md hover:bg-blue-100 transition"
-                    onClick={() => alert("แบ่งปันยังไม่พร้อมใช้งาน")}
-                  >
-                    <FaShareAlt className="inline-block text-xl mr-2" /> แบ่งปัน
-                  </button>
+  className="bg-white text-[#1478D2] py-2 px-4 rounded-full shadow-md hover:bg-blue-100 transition"
+  onClick={() => handleShare(track)}
+>
+  <FaShareAlt className="inline-block text-xl mr-2" /> แบ่งปัน
+</button>
+
                 </div>
               </div>
             ))}
