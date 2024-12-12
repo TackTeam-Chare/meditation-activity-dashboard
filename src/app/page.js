@@ -51,6 +51,7 @@ export default function MeditationDashboard() {
       url: "/sounds/meditation-blue-138131.mp3",
     },
   ]);
+
   const audioRef = useRef(null);
   const liveAudioRef = useRef(null);
 
@@ -114,6 +115,7 @@ export default function MeditationDashboard() {
   
       updateDurations();
     }, []);
+
   // Simulated heart rate monitoring
   useEffect(() => {
     let interval;
@@ -128,6 +130,8 @@ export default function MeditationDashboard() {
     return () => clearInterval(interval);
   }, [isMonitoring]);
 
+
+
   const toggleMonitoring = () => {
     if (isMonitoring) {
       setMonitoring(false);
@@ -141,7 +145,6 @@ export default function MeditationDashboard() {
     const seconds = Math.floor(time % 60).toString().padStart(2, "0");
     return `${minutes}:${seconds}`;
   };
-
 
 
   const togglePlayPause = (track) => {
@@ -160,45 +163,72 @@ export default function MeditationDashboard() {
     }
   };
 
-  useEffect(() => {
-    if (currentAudio && isPlaying) {
-      audioRef.current.src = currentAudio.url;
-      audioRef.current.play();
+useEffect(() => {
+  if (currentAudio && isPlaying) {
+    audioRef.current.src = currentAudio.url;
+    audioRef.current.play();
 
-      const handleTimeUpdate = () => {
-        setCurrentTime(audioRef.current.currentTime);
-      };
+    const handleLoadedMetadata = () => {
+      setDuration(audioRef.current.duration); // Set the duration of the audio
+    };
 
-      const handleEnded = async () => {
-        setPlaying(false);
-        setCurrentTime(0);
+    const handleTimeUpdate = () => {
+      setCurrentTime(audioRef.current.currentTime);
+    };
 
-        if (userID) {
-          // Log activity to backend
-          try {
-            await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/activity/save`, {
-              userID,
-              activityID: currentAudio.title,
-              startTime: new Date().toISOString(),
-              duration: audioRef.current.duration,
-              rewards:audioRef.current.duration,
-            });
-            console.log("Activity logged successfully!");
-          } catch (error) {
-            console.error("Error logging activity:", error);
-          }
+    const handleEnded = async () => {
+      setPlaying(false);
+      setCurrentTime(0);
+
+      if (userID) {
+        try {
+          await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/activity/save`, {
+            userID,
+            activityID: currentAudio.title,
+            startTime: new Date().toISOString(),
+            duration: audioRef.current.duration,
+            rewards: Math.floor(audioRef.current.duration), // Rewards based on full duration
+          });
+          console.log("Activity logged successfully!");
+        } catch (error) {
+          console.error("Error logging activity:", error);
         }
-      };
+      }
+    };
 
-      audioRef.current.addEventListener("timeupdate", handleTimeUpdate);
-      audioRef.current.addEventListener("ended", handleEnded);
+    audioRef.current.addEventListener("loadedmetadata", handleLoadedMetadata);
+    audioRef.current.addEventListener("timeupdate", handleTimeUpdate);
+    audioRef.current.addEventListener("ended", handleEnded);
 
-      return () => {
-        audioRef.current.removeEventListener("timeupdate", handleTimeUpdate);
-        audioRef.current.removeEventListener("ended", handleEnded);
-      };
-    }
-  }, [currentAudio, isPlaying, userID]);
+    return () => {
+      audioRef.current.removeEventListener("loadedmetadata", handleLoadedMetadata);
+      audioRef.current.removeEventListener("timeupdate", handleTimeUpdate);
+      audioRef.current.removeEventListener("ended", handleEnded);
+    };
+  }
+}, [currentAudio, isPlaying, userID]);
+
+useEffect(() => {
+  const updateDurations = async () => {
+    const updatedTracks = await Promise.all(
+      audioTracks.map(async (track) => {
+        const audio = new Audio(track.url);
+        return new Promise((resolve) => {
+          audio.addEventListener("loadedmetadata", () => {
+            resolve({
+              ...track,
+              duration: formatTime(audio.duration), // Update with formatted duration
+            });
+          });
+        });
+      })
+    );
+    setAudioTracks(updatedTracks);
+  };
+
+  updateDurations();
+}, []);
+
 
   // Toggle live audio streaming
   const toggleLiveBroadcast = () => {
@@ -380,8 +410,8 @@ export default function MeditationDashboard() {
         </section>
       </main>
 
-      {/* Playback Controls */}
-      {currentAudio && (
+    {/* Playback Controls */}
+    {currentAudio && (
         <footer className="fixed bottom-0 left-0 right-0 bg-gradient-to-r from-[#0D2745] via-[#1478D2] to-[#0D2745] text-white shadow-lg py-4 px-6 flex items-center justify-between">
           <div className="flex items-center gap-4">
             <div className="text-xl">
@@ -396,6 +426,7 @@ export default function MeditationDashboard() {
           </div>
         </footer>
       )}
+
        {/* Hidden Audio Element for Live Broadcast */}
        <audio
         ref={liveAudioRef}
