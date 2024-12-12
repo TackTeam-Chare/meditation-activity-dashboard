@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect,useRef  } from "react";
+import { toast, ToastContainer } from 'react-toastify';
+import 'react-toastify/dist/ReactToastify.css';
 import liff from "@line/liff";
 import axios from "axios";
 import {
@@ -180,6 +182,21 @@ useEffect(() => {
       setPlaying(false);
       setCurrentTime(0);
 
+      // แจ้งเตือนเมื่อเสียงจบ
+   toast.success(`🎉 เสียง "${currentAudio.title}" เล่นจบแล้ว!`, {
+    position: "top-center",
+    autoClose: 6000,
+    hideProgressBar: false,
+    pauseOnHover: true,
+    draggable: true,
+    progress: undefined,
+    theme: "colored",
+ });
+
+   // เล่นเสียงแจ้งเตือน (เลือกไฟล์เสียงที่ต้องการ)
+   const notificationSound = new Audio('/sounds/mixkit-confirmation-tone-2867.mp3');
+   notificationSound.play();
+
       if (userID) {
         try {
           await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/activity/save`, {
@@ -190,6 +207,7 @@ useEffect(() => {
             rewards: Math.floor(audioRef.current.duration), // Rewards based on full duration
           });
           console.log("Activity logged successfully!");
+          
         } catch (error) {
           console.error("Error logging activity:", error);
         }
@@ -294,7 +312,7 @@ useEffect(() => {
           </button>
         </div>
       </header>
-
+      <ToastContainer /> 
       {/* Quick Access Buttons */}
       <div className="flex flex-wrap justify-around mt-4 px-4 gap-4">
         {/* Heart Rate Monitoring Button */}
