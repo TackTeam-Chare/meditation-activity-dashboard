@@ -1,6 +1,8 @@
 "use client";
 
 import React, { useState, useEffect,useRef  } from "react";
+import liff from "@line/liff";
+import axios from "axios";
 import {
   FaPlayCircle,
   FaPauseCircle,
@@ -15,6 +17,7 @@ import { MdSelfImprovement } from "react-icons/md";
 import { BsFillSunFill, BsMoonStarsFill } from "react-icons/bs";
 
 export default function MeditationDashboard() {
+  const [userID, setUserID] = useState(null); 
   const [isNightMode, setNightMode] = useState(false);
   const [isPlaying, setPlaying] = useState(false);
   const [currentAudio, setCurrentAudio] = useState(null);
@@ -50,6 +53,25 @@ export default function MeditationDashboard() {
   ]);
   const audioRef = useRef(null);
   const liveAudioRef = useRef(null);
+
+   // Initialize LIFF
+   useEffect(() => {
+    const initLiff = async () => {
+      try {
+        await liff.init({ liffId: process.env.NEXT_PUBLIC_LIFF_ID }); // Use LIFF ID from .env
+        if (liff.isLoggedIn()) {
+          const profile = await liff.getProfile();
+          setUserID(profile.userId);
+        } else {
+          liff.login();
+        }
+      } catch (error) {
+        console.error("Error initializing LIFF:", error);
+      }
+    };
+    initLiff();
+  }, []);
+
   // Timer functionality for meditation
   useEffect(() => {
     let timer;
@@ -140,32 +162,43 @@ export default function MeditationDashboard() {
 
   useEffect(() => {
     if (currentAudio && isPlaying) {
-      audioRef.current.src = currentAudio.url; // Update the audio source
-      audioRef.current.play(); // Play the audio
-
-      const handleLoadedMetadata = () => {
-        setDuration(audioRef.current.duration); // Set the duration of the audio
-      };
+      audioRef.current.src = currentAudio.url;
+      audioRef.current.play();
 
       const handleTimeUpdate = () => {
-        setCurrentTime(audioRef.current.currentTime); // Update the current playback time
+        setCurrentTime(audioRef.current.currentTime);
       };
 
-      audioRef.current.addEventListener("loadedmetadata", handleLoadedMetadata);
+      const handleEnded = async () => {
+        setPlaying(false);
+        setCurrentTime(0);
+
+        if (userID) {
+          // Log activity to backend
+          try {
+            await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/activity/save`, {
+              userID,
+              activityID: currentAudio.title,
+              startTime: new Date().toISOString(),
+              duration: audioRef.current.duration,
+              rewards:audioRef.current.duration,
+            });
+            console.log("Activity logged successfully!");
+          } catch (error) {
+            console.error("Error logging activity:", error);
+          }
+        }
+      };
+
       audioRef.current.addEventListener("timeupdate", handleTimeUpdate);
+      audioRef.current.addEventListener("ended", handleEnded);
 
       return () => {
-        audioRef.current.removeEventListener(
-          "loadedmetadata",
-          handleLoadedMetadata
-        );
         audioRef.current.removeEventListener("timeupdate", handleTimeUpdate);
+        audioRef.current.removeEventListener("ended", handleEnded);
       };
     }
-  }, [currentAudio, isPlaying]);
-
- 
-
+  }, [currentAudio, isPlaying, userID]);
 
   // Toggle live audio streaming
   const toggleLiveBroadcast = () => {
