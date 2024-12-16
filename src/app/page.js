@@ -33,21 +33,35 @@ export default function MeditationDashboard() {
   const [audioTracks, setAudioTracks] = useState([
     {
       id: 1,
-      title: "การฝึกสมาธิ: เสียงธรรมชาติในป่า",
-      speaker: "ธรรมชาติ",
+      title: "ปฏิบัติให้สมาธิอยู่กับจิต",
+      speaker: "หลวงพ่อพุธ ฐานิโย",
       duration: "กำลังโหลด...", // Placeholder
-      url: "/sounds/birds39-forest-20772.mp3",
+      url: "/sounds/ปฏิบัติให้สมาธิอยู่กับจิต.mp3",
     },
     {
       id: 2,
-      title: "การฝึกสมาธิ: เสียงธรรมชาติเบาสบาย",
-      speaker: "ธรรมชาติ",
+      title: "ฝึกนั่งสมาธิ สร้างพลังจิต",
+      speaker: "หลวงพ่อวิริยังค์ สิรินฺธโร",
       duration: "กำลังโหลด...", // Placeholder
-      url: "/sounds/gentle-nature-ambience-248950.mp3",
+      url: "/sounds/สมาธิสร้างปัญญา.mp3",
     },
     {
       id: 3,
-      title: "การฝึกสมาธิ: สมาธิสีฟ้า",
+      title: "ฝึกนั่งสมาธิ สร้างพลังจิต",
+      speaker: "หลวงพ่อวิริยังค์ สิรินฺธโร",
+      duration: "กำลังโหลด...", // Placeholder
+      url: "/sounds/ฝึกนั่งสมาธิ_สร้างพลังจิต.mp3",
+    },
+    {
+      id: 4,
+      title: "วิธีการภาวนา ให้จิตตั้งเป็นสมาธิได้",
+      speaker: "หลวงตามหาบัว ญาณสัมปันโน",
+      duration: "กำลังโหลด...", // Placeholder
+      url: "/sounds/วิธีการภาวนา_ให้จิตตั้งเป็นสมาธิได้.mp3",
+    },
+    {
+      id: 5,
+      title: "เทสบรรยายเสียง",
       speaker: "ธรรมชาติ",
       duration: "กำลังโหลด...", // Placeholder
       url: "/sounds/meditation-blue-138131.mp3",
@@ -97,7 +111,8 @@ export default function MeditationDashboard() {
 
   const toggleNightMode = () => setNightMode(!isNightMode);
     // Load audio durations dynamically
-    useEffect(() => {
+    // biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
+        useEffect(() => {
       const updateDurations = async () => {
         const updatedTracks = await Promise.all(
           audioTracks.map(async (track) => {
@@ -181,35 +196,44 @@ useEffect(() => {
     const handleEnded = async () => {
       setPlaying(false);
       setCurrentTime(0);
-
-      // แจ้งเตือนเมื่อเสียงจบ
-   toast.success(`🎉 เสียง "${currentAudio.title}" เล่นจบแล้ว!`, {
-    position: "top-center",
-    autoClose: 6000,
-    hideProgressBar: false,
-    pauseOnHover: true,
-    draggable: true,
-    progress: undefined,
-    theme: "colored",
- });
-
-   // เล่นเสียงแจ้งเตือน (เลือกไฟล์เสียงที่ต้องการ)
-   const notificationSound = new Audio('/sounds/mixkit-confirmation-tone-2867.mp3');
-   notificationSound.play();
-
+    
       if (userID) {
         try {
-          await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/activity/save`, {
+          const response = await axios.post(`${process.env.NEXT_PUBLIC_API_BASE_URL}/activity/save`, {
             userID,
             activityID: currentAudio.title,
             startTime: new Date().toISOString(),
             duration: audioRef.current.duration,
             rewards: Math.floor(audioRef.current.duration), // Rewards based on full duration
           });
-          console.log("Activity logged successfully!");
-          
+    
+          // Only show toast and play notification sound if insertion is successful
+          if (response.data && response.status === 200) {
+            toast.success(`🎉 เสียง "${currentAudio.title}" เล่นจบแล้ว!`, {
+              position: "top-center",
+              autoClose: 6000,
+              hideProgressBar: false,
+              pauseOnHover: true,
+              draggable: true,
+              progress: undefined,
+              theme: "colored",
+              style: { backgroundColor: "#1478D2", color: "white" }, // Blue background
+            });
+    
+            // Play notification sound
+            const notificationSound = new Audio('/sounds/mixkit-confirmation-tone-2867.mp3');
+            notificationSound.play();
+    
+            console.log("Activity logged successfully!");
+          }
         } catch (error) {
           console.error("Error logging activity:", error);
+          // Optional: You could add an error toast here if desired
+          toast.error("ไม่สามารถบันทึกกิจกรรมได้", {
+            position: "top-center",
+            autoClose: 3000,
+            theme: "colored",
+          });
         }
       }
     };
@@ -226,6 +250,7 @@ useEffect(() => {
   }
 }, [currentAudio, isPlaying, userID]);
 
+// biome-ignore lint/correctness/useExhaustiveDependencies: <explanation>
 useEffect(() => {
   const updateDurations = async () => {
     const updatedTracks = await Promise.all(
@@ -297,6 +322,7 @@ useEffect(() => {
           เเดชบอร์ดฝึกสมาธิ
         </h1>
         <div className="flex gap-2">
+          {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
           <button
             className="p-2 rounded-full shadow-md transition-transform hover:scale-110"
             onClick={toggleNightMode}
@@ -307,6 +333,7 @@ useEffect(() => {
               <BsMoonStarsFill className="text-indigo-400 text-xl" />
             )}
           </button>
+    {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
     <button className="p-2 rounded-full shadow-lg transition-transform transform hover:scale-110">
             <FaEllipsisV className="text-xl" />
           </button>
@@ -316,6 +343,7 @@ useEffect(() => {
       {/* Quick Access Buttons */}
       <div className="flex flex-wrap justify-around mt-4 px-4 gap-4">
         {/* Heart Rate Monitoring Button */}
+        {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
         <button
           onClick={toggleMonitoring}
           className="flex items-center gap-2 text-[#1478D2] bg-white py-2 px-4 md:px-6 rounded-full shadow-md hover:bg-blue-100 transition w-full md:w-auto"
@@ -329,6 +357,7 @@ useEffect(() => {
         </button>
 
         {/* Meditation Timer Button */}
+        {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
         <button
           onClick={toggleMeditation}
           className="flex items-center gap-2 text-[#1478D2] bg-white py-2 px-4 md:px-6 rounded-full shadow-md hover:bg-blue-100 transition w-full md:w-auto"
@@ -347,6 +376,7 @@ useEffect(() => {
         </button>
 
   {/* Live Broadcast Button */}
+  {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
   <button
           onClick={toggleLiveBroadcast}
           className="flex items-center gap-2 text-[#1478D2] bg-white py-2 px-4 md:px-6 rounded-full shadow-md hover:bg-blue-100 transition w-full md:w-auto"
@@ -386,7 +416,9 @@ useEffect(() => {
             {audioTracks.map((track) => (
               <div
                 key={track.id}
-                className="bg-gradient-to-r from-white via-[#1478D2] to-[#0D2745] rounded-lg shadow-lg p-4 flex flex-col justify-between text-white"
+                 className="relative group bg-gradient-to-b from-[#1A3A63] via-[#1E4E7C] to-[#102A43] 
+             hover:from-[#0F334B] hover:via-[#133E5C] hover:to-[#081F36]
+             rounded-lg shadow-xl p-6 flex flex-col justify-between text-white transition-transform duration-300 transform hover:scale-105"
               >
                 <div className="flex justify-between items-center">
                   <h3 className="text-base md:text-lg font-semibold">
@@ -401,8 +433,10 @@ useEffect(() => {
                   โดย {track.speaker}
                 </p>
                 <div className="mt-4 flex justify-between items-center">
+                  {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
                   <button
-                    className="bg-white text-[#1478D2] py-2 px-4 rounded-full shadow-md hover:bg-blue-100 transition"
+                    className="bg-white text-[#1478D2] py-2 px-4 rounded-full shadow-md flex items-center justify-center gap-2 
+             hover:bg-blue-100 transition duration-300"
                     onClick={() => togglePlayPause(track)}
                   >
                     {currentAudio && currentAudio.id === track.id && isPlaying ? (
@@ -414,8 +448,10 @@ useEffect(() => {
                       ? "หยุด"
                       : "เล่น"}
                   </button>
+                  {/* biome-ignore lint/a11y/useButtonType: <explanation> */}
                   <button
-  className="bg-white text-[#1478D2] py-2 px-4 rounded-full shadow-md hover:bg-blue-100 transition"
+ className="bg-white text-[#1478D2] py-2 px-4 rounded-full shadow-md flex items-center justify-center gap-2 
+             hover:bg-blue-100 transition duration-300"
   onClick={() => handleShare(track)}
 >
   <FaShareAlt className="inline-block text-xl mr-2" /> แบ่งปัน
@@ -446,10 +482,13 @@ useEffect(() => {
       )}
 
        {/* Hidden Audio Element for Live Broadcast */}
+       {/* biome-ignore lint/style/useSelfClosingElements: <explanation> */}
+       {/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
        <audio
         ref={liveAudioRef}
         src="https://cdn-th2.login.in.th/shoutcast/8615"
       ></audio>
+        {/* biome-ignore lint/a11y/useMediaCaption: <explanation> */}
         <audio ref={audioRef} />
     </div>
   );
